@@ -1,31 +1,18 @@
+// app/api/submit-task/route.ts
+
 import { NextResponse } from "next/server";
 import { v4 as uuidv4 } from "uuid";
 import { connect } from "@/lib/db";
-import { redisClient, redisConnect } from "@/lib/redis";
 import Task from "@/models/TaskModel";
-import { TaskData } from "@/types/task-type";
+import { imageQueue } from "@/lib/ImageQueue"; // bull queue or your custom queue
 
-async function generateUniqueTaskId(): Promise<string> {
-  let taskId: string;
-  let isUnique = false;
-  
-  do {
-    taskId = uuidv4().toUpperCase();
-    const existingTask = await Task.findOne({ taskId });
-    if (!existingTask) {
-      isUnique = true;
-    }
-  } while (!isUnique);
-  
-  return taskId;
-}
-
-export async function POST(req: Request): Promise<NextResponse> {
+export async function POST(req: Request) {
   try {
+
     await connect();
-    await redisConnect();
-    
-    const { imageUrl }: { imageUrl: string } = await req.json();
+
+
+    const { imageUrl } = await req.json();
     if (!imageUrl) {
       return NextResponse.json(
         { status: "error", message: "Image URL is required" },
@@ -33,25 +20,38 @@ export async function POST(req: Request): Promise<NextResponse> {
       );
     }
 
-    const taskId: string = await generateUniqueTaskId();
-    const newTask: TaskData = {
+    const taskId = uuidv4().toUpperCase();
+    const newTask = {
       taskId,
       imageUrl,
       status: "Pending",
-      timestamp: new Date().toISOString(),
+      pushedToQueue: false, 
+      timestamp: new Date()
     };
 
-    await Task.create(newTask);
+
+    const createdTask = await Task.create(newTask);
+
+
+    try {
+      await imageQueue.add("verifyImage", { taskId });
+
+      await Task.findByIdAndUpdate(createdTask._id, {
+        pushedToQueue: true
+      });
+    } catch (queueErr) {
     
-    if (redisClient) {
-      await redisClient.lpush("taskQueue", JSON.stringify(newTask));
-    } else {
-      console.error("Redis client is not connected");
+      console.error("Queue push failed:", queueErr);
     }
 
-    return NextResponse.json({ status: "success", taskId, newTask }, { status: 201 });
+
+    return NextResponse.json(
+      { status: "success", createdTask },
+      { status: 201 }
+    );
+
   } catch (error) {
-    console.error("Task submission failed:", error);
+    console.error("Error in POST /submit-task:", error);
     return NextResponse.json(
       { status: "error", message: (error as Error).message },
       { status: 500 }

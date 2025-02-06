@@ -1,0 +1,1 @@
+{"root":["./src/config.ts","./src/index.ts","./src/worker.ts","./src/db/connect.ts","./src/managers/redismanager.ts","./src/models/taskmodel.ts"],"version":"5.7.3"}

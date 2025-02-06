@@ -16,7 +16,7 @@ export async function GET(req: Request): Promise<NextResponse> {
       .sort({ timestamp: -1 })
       .skip(skip)
       .limit(limit)
-      .lean();
+      // .lean();
 
     return NextResponse.json(
       {
