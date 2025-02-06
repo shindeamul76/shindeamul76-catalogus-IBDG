@@ -1,10 +1,10 @@
-// app/api/submit-task/route.ts
+
 
 import { NextResponse } from "next/server";
 import { v4 as uuidv4 } from "uuid";
 import { connect } from "@/lib/db";
 import Task from "@/models/TaskModel";
-import { imageQueue } from "@/lib/ImageQueue"; // bull queue or your custom queue
+import { imageQueue } from "@/lib/ImageQueue"; 
 
 export async function POST(req: Request) {
   try {
