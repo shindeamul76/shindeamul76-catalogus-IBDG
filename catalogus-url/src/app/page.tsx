@@ -1,12 +1,20 @@
 "use client";
+
+
 import { useState } from "react";
-import { useQuery, useMutation, useQueryClient, keepPreviousData } from "@tanstack/react-query";
+import {
+  useQuery,
+  useMutation,
+  useQueryClient,
+  keepPreviousData,
+} from "@tanstack/react-query";
 import axios from "axios";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
+import Image from "next/image";
 import { TaskData } from "@/types/task-type";
 
 export default function Home() {
@@ -19,12 +27,12 @@ export default function Home() {
   const { data, isLoading, isError, isFetching } = useQuery({
     queryKey: ["tasks", currentPage],
     queryFn: async () => {
-      const response = await axios.get(`/api/get-tasks?page=${currentPage}&limit=${tasksPerPage}`);
-      // placeholderData: keepPreviousData
+      const response = await axios.get(
+        `/api/get-tasks?page=${currentPage}&limit=${tasksPerPage}`
+      );
       return response.data;
     },
-    // This retains previous page's data while fetching next page,
-    // removing the flicker effect
+
     placeholderData: keepPreviousData,
     staleTime: 5000,
   });
@@ -79,15 +87,21 @@ export default function Home() {
         </div>
 
         {/* Loading & Error States */}
-        {isLoading && <p className="text-center text-gray-500">Loading tasks...</p>}
+        {isLoading && (
+          <p className="text-center text-gray-500">Loading tasks...</p>
+        )}
         {isError && (
-          <p className="text-center text-red-500">Failed to fetch tasks. Please try again.</p>
+          <p className="text-center text-red-500">
+            Failed to fetch tasks. Please try again.
+          </p>
         )}
 
         {/* Task List */}
         {!isLoading && !isError && (
           <>
-            <h2 className="text-lg font-semibold mb-4 text-blue-700">Task List</h2>
+            <h2 className="text-lg font-semibold mb-4 text-blue-700">
+              Task List
+            </h2>
             <div className="space-y-4">
               {tasks.length > 0 ? (
                 tasks.map((task: TaskData) => (
@@ -97,18 +111,22 @@ export default function Home() {
                   >
                     <div className="flex items-center space-x-4">
                       {/* Fallback image if status is "Failed" */}
-                      <img
+                      <Image
                         src={
                           task.status === "Failed"
-                            ? "https://media.istockphoto.com/id/1354776457/vector/default-image-icon-vector-missing-picture-page-for-website-design-or-mobile-app-no-photo.jpg?s=612x612&w=0&k=20&c=w3OW0wX3LyiFRuDHo9A32Q0IUMtD4yjXEvQlqyYk9O4=" // Replace with your desired fallback image path
+                            ? "https://media.istockphoto.com/id/1354776457/vector/default-image-icon-vector-missing-picture-page-for-website-design-or-mobile-app-no-photo.jpg?s=612x612&w=0&k=20&c=w3OW0wX3LyiFRuDHo9A32Q0IUMtD4yjXEvQlqyYk9O4="
                             : task.imageUrl
                         }
                         alt="task"
+                        width={56}
+                        height={56}
                         className="w-14 h-14 rounded-full object-cover"
                       />
                     </div>
                     <div className="flex justify-center text-center space-y-2">
-                      <p className="text-sm font-medium">Task ID: {task.taskId}</p>
+                      <p className="text-sm font-medium">
+                        Task ID: {task.taskId}
+                      </p>
                     </div>
                     <Badge
                       className={`w-24 flex items-center justify-center space-x-1 text-center py-1 rounded-md text-white font-semibold ${
@@ -139,7 +157,9 @@ export default function Home() {
                 <Button
                   className="transition duration-300 ease-in-out hover:bg-gray-300"
                   disabled={currentPage === 1 || isFetching}
-                  onClick={() => setCurrentPage((prev) => (prev > 1 ? prev - 1 : 1))}
+                  onClick={() =>
+                    setCurrentPage((prev) => (prev > 1 ? prev - 1 : 1))
+                  }
                 >
                   <ChevronLeft />
                 </Button>
@@ -149,7 +169,11 @@ export default function Home() {
                 <Button
                   className="transition duration-300 ease-in-out hover:bg-gray-300"
                   disabled={currentPage === totalPages || isFetching}
-                  onClick={() => setCurrentPage((prev) => (prev < totalPages ? prev + 1 : totalPages))}
+                  onClick={() =>
+                    setCurrentPage((prev) =>
+                      prev < totalPages ? prev + 1 : totalPages
+                    )
+                  }
                 >
                   <ChevronRight />
                 </Button>
