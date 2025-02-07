@@ -9,7 +9,7 @@
   <p align="center">
     Become a Certified Career Planner.
     <br />
-    <a href="https://shindeamul76-catalogus-ibdg-1byct6p0y-shindeamul76s-projects.vercel.app/"><strong>Deployed URL »</strong></a>
+    <a href="https://shindeamul76-catalogus-ibdg.vercel.app/"><strong>Deployed URL »</strong></a>
     <br />
     <br />
     <a href="https://github.com/shindeamul76/shindeamul76-catalogus-IBDG.git">Discussions</a>
